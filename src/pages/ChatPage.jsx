@@ -4,14 +4,14 @@ import MessageInput from "../components/MessageInput";
 import { truncateText } from "../utils/truncateText";
 import { formatTime } from "../utils/formatTime";
 import { getChats } from "../api/chatApi";
-import { Avatar } from "@mui/material";
+// import { Avatar } from "@mui/material";
 const ChatPage = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [chats, setChats] = useState([]);
   const [message, setMessage] = useState("");
   const [name, setName] = useState("");
   const [msg, setMsg] = useState([]);
-const [avatar,setAvatar] = useState('');
+// const [avatar,setAvatar] = useState('');
 
   const handleInputChange = (event) => {
     setMessage(event.target.value);
@@ -34,7 +34,7 @@ const [avatar,setAvatar] = useState('');
   const handleChatClick = (chat) => {
     setSelectedChat(chat.id);
     setName(chat.name);
-    setAvatar(chat.avatar)
+    // setAvatar(chat.avatar)
   };
 
   return (
