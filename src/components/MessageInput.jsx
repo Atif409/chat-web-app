@@ -1,10 +1,15 @@
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, Box } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-
+// eslint-disable-next-line react/prop-types
 const MessageInput = ({ message, handleInputChange, handleSendClick }) => {
   return (
     <>
-      <div className="w-full flex flex-row p-4">
+      <Box component="section" sx={{
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        width:'100%'
+      }}>
         <TextField
           variant="outlined"
           label="Type Your Message..."
@@ -34,7 +39,7 @@ const MessageInput = ({ message, handleInputChange, handleSendClick }) => {
         >
           Send
         </Button>
-      </div>
+      </Box>
     </>
   );
 };

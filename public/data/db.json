@@ -1,0 +1,36 @@
+{
+  "users": [
+    {
+      "id": "7ab0",
+      "name": "Atif",
+      "email": "atif@gmail.com",
+      "password": "pass123"
+    },
+    {
+      "id": "945e",
+      "name": "Hello",
+      "email": "hello@mail.com",
+      "password": "a"
+    },
+    {
+      "id": "7c2c",
+      "name": "Ali",
+      "email": "ali@gmail.com",
+      "password": "ali123"
+    },
+    {
+      "id": "011a",
+      "name": "Muhammad Atif",
+      "email": "test1@mail.com",
+      "password": "test1"
+    }
+  ],
+  "chats": [
+    {
+      "id": "8c3d",
+      "senderId": "7ab0",
+      "messages": []
+    }
+  ],
+  "groupChats": []
+}
