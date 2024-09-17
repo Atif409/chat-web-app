@@ -29,7 +29,6 @@ const Home = () => {
 
   const [users, setUSers] = useState([]);
 
-  
   const [emojiImgUrl, setEmojiImgUrl] = useState("");
 
   useEffect(() => {
@@ -119,7 +118,6 @@ const Home = () => {
     return emojiImg;
   };
 
-
   const handleChatClick = (chat) => {
     console.log("Chat clicked:", chat);
     navigate("/app/chat");
@@ -150,7 +148,7 @@ const Home = () => {
   const handleChat = (user) => {
     setName(user.name);
     if (user.name) {
-      navigate("/app/chat", { state: { name: user.name } });
+      navigate("/app/chat", { state: { name: user.name, userId: user.id } });
     }
   };
   return (
