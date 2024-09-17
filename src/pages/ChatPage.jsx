@@ -8,7 +8,7 @@ const ChatPage = () => {
   const [msg, setMsg] = useState([]);
   const location = useLocation();
   const userName = location.state?.name;
-  const userId = location.state?.userId;
+  // const userId = location.state?.userId;
   const handleInputChange = (event) => {
     setMessage(event.target.value);
   };

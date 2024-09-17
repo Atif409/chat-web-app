@@ -25,7 +25,7 @@ const Home = () => {
   const userId = localStorage.getItem("userId");
   const [open, setOpen] = useState(false);
   const [openGroupModal, setOpenGroupModal] = useState(false);
-  const [name, setName] = useState("");
+
 
   const [users, setUSers] = useState([]);
 
@@ -146,7 +146,7 @@ const Home = () => {
   };
 
   const handleChat = (user) => {
-    setName(user.name);
+ 
     if (user.name) {
       navigate("/app/chat", { state: { name: user.name, userId: user.id } });
     }
