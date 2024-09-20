@@ -5,19 +5,39 @@ import {
   Typography,
   Modal,
   TextField,
+  IconButton,
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useState, useEffect } from "react";
 import ChatList from "../components/ChatList";
 import { truncateText } from "../utils/truncateText";
 import Users from "../components/Users";
-// import { formatTime } from "../utils/formatTime";
+import { formatTime } from "../utils/formatTime";
+import { lastMessage, lastMessageTime } from "../utils/lastMessage";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import AddIcon from "@mui/icons-material/Add";
-
-import { getUsers } from "../api/chatApi";
+import { getUsers, getChats, createChat } from "../api/chatApi";
 import { useNavigate } from "react-router-dom";
 import { getRandomEmoji, emojiToImage } from "../utils/emojiUtil";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+/**
+ * Home page component. Displays a list of chats, a button to create a new individual chat, and a button to create a new group chat.
+ * When the user clicks on a chat, it navigates to the chat page with the chatId and the name and id of the user to chat with.
+ * When the user clicks on the new individual chat button, it opens a modal with a list of users to chat with.
+ * When the user clicks on the new group chat button, it opens a modal with a list of users to add to the group chat.
+ * @prop {string} selectedChatType - The type of chat to display. Can be "individual" or "group". Default is "individual".
+ * @prop {string} userName - The name of the user.
+ * @prop {string} userId - The id of the user.
+ * @prop {array} chats - The list of chats to display.
+ * @prop {array} users - The list of users to display in the modal.
+ * @prop {function} handleChatClick - The function to call when the user clicks on a chat.
+ * @prop {function} handleGetUsers - The function to call when the user clicks on the new individual chat button.
+ * @prop {function} handleGroupModalOpen - The function to call when the user clicks on the new group chat button.
+ * @prop {function} handleGroupModalClose - The function to call when the user closes the group chat modal.
+ * @prop {function} handleOpen - The function to call when the user clicks on the new individual chat button.
+ * @prop {function} handleClose - The function to call when the user closes the individual chat modal.
+ */
+
 const Home = () => {
   const navigate = useNavigate();
   const [selectedChatType, setSelectedChatType] = useState("individual");
@@ -25,55 +45,108 @@ const Home = () => {
   const userId = localStorage.getItem("userId");
   const [open, setOpen] = useState(false);
   const [openGroupModal, setOpenGroupModal] = useState(false);
-
-
   const [users, setUSers] = useState([]);
-
   const [emojiImgUrl, setEmojiImgUrl] = useState("");
+  const [chat, setChat] = useState([]);
+  const [user, setUser] = useState([]);
+  const [otherUserNames, setOtherUserNames] = useState([]);
+  const [individualChats, setIndividualChats] = useState([]);
+  useEffect(() => {
+    /**
+     * Fetches users and chats from the server and stores them in state variables
+     * @returns {Promise<void>}
+     */
+    const fetchUsersAndChats = async () => {
+      try {
+        const usersData = await getUsers();
+        // Store all users in the state variable
+        setUser(usersData);
+        const chatsData = await getChats();
+        if (chatsData) {
+          // Store all chats in the state variable
+          setChat(chatsData);
+          console.log("Chats:", chatsData);
+        } else {
+          console.log("No chats found");
+        }
+      } catch (error) {
+        console.error("Error fetching users or chats:", error);
+      }
+    };
 
+    fetchUsersAndChats();
+  }, []);
+  /**
+   * Handles the chat click event. If the chat already exists, navigates to it.
+   * If the chat does not exist, creates a new chat and navigates to it.
+   * @param {{name: string, id: string}} user The user to chat with
+   * @returns {Promise<void>}
+   */
+  const handleChat = async (user) => {
+    if (user.name) {
+      const existingChat = chat.find(
+        (chat) =>
+          chat.participants.includes(user.id) &&
+          chat.participants.includes(userId)
+      );
+      if (existingChat) {
+        console.log("Chat already exists:", existingChat);
+        // Navigate to the existing chat
+        navigate("/app/chat", {
+          state: {
+            // Pass the chatId to the chat page
+            chatId: existingChat.id,
+            // Pass the name of the user to chat with
+            name: user.name,
+            // Pass the id of the user to chat with
+            userId: user.id,
+          },
+        });
+      } else {
+        console.log("Please Create a new chat");
+        // Create a new chat
+        const newChat = await createChat({
+          // Add the logged-in user and the user to chat with as participants
+          participants: [
+            { id: userId, name: userName },
+            { id: user.id, name: user.name },
+          ],
+          // Initialize the messages array as empty
+          messages: [],
+        });
+        console.log("New chat created:", newChat);
+        // Navigate to the new chat
+        navigate("/app/chat", {
+          state: {
+            // Pass the chatId to the chat page
+            chatId: newChat.id,
+            // Pass the name of the user to chat with
+            name: user.name,
+            // Pass the id of the user to chat with
+            userId: user.id,
+          },
+        });
+      }
+    }
+  };
   useEffect(() => {
     const emoji = getRandomEmoji();
     const emojiImg = emojiToImage(emoji);
     setEmojiImgUrl(emojiImg);
   }, []);
 
-  const individualChats = [
-    {
-      id: 1,
-      name: "John Doe",
-      image: "https://i.pravatar.cc/150?img=1",
-      lastMessage: "Hey, how are you?",
-      time: "2:30 PM",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      image: "https://i.pravatar.cc/150?img=2",
-      lastMessage: "Can we meet tomorrow?",
-      time: "1:15 PM",
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      image: "https://i.pravatar.cc/150?img=3",
-      lastMessage: "Sure, I’ll send the documents.",
-      time: "12:45 PM",
-    },
-    {
-      id: 4,
-      name: "Sarah Williams",
-      image: "https://i.pravatar.cc/150?img=4",
-      lastMessage: "Great! Looking forward to it.",
-      time: "11:30 AM",
-    },
-    {
-      id: 5,
-      name: "David Brown",
-      image: "https://i.pravatar.cc/150?img=5",
-      lastMessage: "Let me know if you need anything.",
-      time: "Yesterday",
-    },
-  ];
+  useEffect(() => {
+    if (chat.length > 0) {
+      // Filter chats where the logged-in user's id is in the participants' list
+      const filteredChats = chat.filter((chat) =>
+        chat.participants.some((participant) => participant.id === userId)
+      );
+
+      setIndividualChats(filteredChats);
+      console.log("Individual Chats:", filteredChats);
+    }
+  }, [chat, userId]);
+
   const groupChats = [
     {
       id: 1,
@@ -111,28 +184,94 @@ const Home = () => {
       time: "Yesterday",
     },
   ];
+  /**
+   * Generates a random emoji and converts it to a base64 image using canvas.
+   * Returns the base64 image URL as a string.
+   * @returns {string} - The base64 image URL of the generated emoji.
+   */
   const genrateEmojiUrl = () => {
+    // Generate a random emoji from a specific Unicode range (smileys)
     const emoji = getRandomEmoji();
+    // Convert the emoji to a base64 image using canvas
     const emojiImg = emojiToImage(emoji);
     console.log(emojiImg);
     return emojiImg;
   };
 
-  const handleChatClick = (chat) => {
-    console.log("Chat clicked:", chat);
-    navigate("/app/chat");
+  /**
+   * Handles the click event of a chat in the chat list.
+   * Navigates to the chat page with the chatId and the name and id of the user to chat with.
+   * @param {Object} chat - The selected chat object.
+   * @description
+   * This function is called when a chat is clicked in the chat list.
+   * It finds the participant who is not the logged-in user and navigates to the chat page
+   * with the chatId and the name and id of the user to chat with.
+   */
+  const handleChatClick = async (chat) => {
+    // Check if the chat has more than one participant
+    if (chat.participants && chat.participants.length > 1) {
+      // Find the participant who is not the logged-in user
+      const clickedUser = chat.participants.find(
+        (participant) => participant.id !== userId
+      );
+
+      // Check if the clicked user is not the logged-in user
+      if (clickedUser) {
+        // Find the selected user in the user list
+        const selectedUser = user.find((user) => user.id === clickedUser.id);
+
+        // Check if the selected user is found in the user list
+        if (selectedUser) {
+          // Navigate to the chat page with the chatId and the name and id of the user to chat with
+          navigate("/app/chat", {
+            state: {
+              chatId: chat.id,
+              name: selectedUser.name,
+              userId: selectedUser.id,
+            },
+          });
+        } else {
+          console.log("User not found in users array.");
+        }
+      } else {
+        console.log("No valid clickedUser found.");
+      }
+    } else {
+      console.log("Not enough participants in this chat.");
+    }
   };
 
   const chats =
     selectedChatType === "individual" ? individualChats : groupChats;
+
+  useEffect(() => {
+    const otherUsers = individualChats.map((chat) => {
+      // Find the participant who is not the logged-in user
+      const otherUser = chat.participants.find(
+        (participant) => participant.id !== userId
+      );
+
+      // Return the other user's name or "Unknown User" if not found
+      return otherUser?.name || "Unknown User";
+    });
+
+    setOtherUserNames(otherUsers);
+  }, [individualChats, user, userId]);
+
   const handleOpen = () => {
     setOpen(true);
     handleGetUsers();
   };
   const handleClose = () => setOpen(false);
 
+  /**
+   * Opens the modal for creating a new group chat.
+   * @function
+   */
   const handleGroupModalOpen = () => {
+    // Open the modal
     setOpenGroupModal(true);
+    // Get the list of users to display in the modal
     handleGetUsers();
   };
   const handleGroupModalClose = () => setOpenGroupModal(false);
@@ -144,13 +283,11 @@ const Home = () => {
 
     setUSers(filteredResponse);
   };
-
-  const handleChat = (user) => {
- 
-    if (user.name) {
-      navigate("/app/chat", { state: { name: user.name, userId: user.id } });
-    }
-  };
+  // const handleChat = (user) => {
+  //   if (user.name) {
+  //     navigate("/app/chat", { state: { name: user.name, userId: user.id } });
+  //   }
+  // };
   return (
     <Box
       component="div"
@@ -203,6 +340,21 @@ const Home = () => {
             gap: 2,
           }}
         >
+          <IconButton
+            aria-label="users"
+            onClick={handleOpen}
+            sx={{
+              backgroundColor: "#000000",
+              color: "#ffffff",
+              mr: 2,
+              ":hover": {
+                border: "2px solid #000000",
+                color: "#000000",
+              },
+            }}
+          >
+            <PeopleAltIcon />
+          </IconButton>
           <SettingsIcon />
         </Box>
       </Box>
@@ -216,17 +368,6 @@ const Home = () => {
           backgroundColor: "#dadada",
         }}
       >
-        <Button
-          onClick={handleOpen}
-          sx={{
-            width: "10%",
-            backgroundColor: "#000000",
-            color: "#ffffff",
-            mr: 2,
-          }}
-        >
-          Users
-        </Button>
         <Modal
           open={open}
           onClose={handleClose}
@@ -386,13 +527,28 @@ const Home = () => {
           },
         }}
       >
-        {chats.map((chat) => (
+        {chats.map((chat, index) => (
           <ChatList
             key={chat.id}
-            avatar={chat.image}
-            name={chat.name}
-            msg={truncateText(chat.lastMessage, 50)}
-            time={chat.time}
+            name={
+              selectedChatType === "individual"
+                ? otherUserNames[index]
+                : chat.name
+            }
+            avatar={
+              selectedChatType === "individual" ? genrateEmojiUrl() : chat.image
+            }
+            msg={truncateText(
+              selectedChatType === "individual"
+                ? lastMessage(chat)
+                : chat.lastMessage,
+              20
+            )}
+            time={
+              selectedChatType === "individual"
+                ? formatTime(lastMessageTime(chat))
+                : chat.time
+            }
             onClick={() => {
               handleChatClick(chat);
             }}

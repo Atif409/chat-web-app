@@ -8,8 +8,8 @@
     },
     {
       "id": "945e",
-      "name": "Hello",
-      "email": "hello@mail.com",
+      "name": "Muneeb",
+      "email": "m@mail.com",
       "password": "a"
     },
     {
@@ -27,9 +27,52 @@
   ],
   "chats": [
     {
-      "id": "8c3d",
-      "senderId": "7ab0",
-      "messages": []
+      "id": "a1c5",
+      "participants": [
+        {
+          "id": "7ab0",
+          "name": "Atif"
+        },
+        {
+          "id": "945e",
+          "name": "Muneeb"
+        }
+      ],
+      "messages": [
+        {
+          "id": 1726808097591,
+          "senderId": "7ab0",
+          "content": "hi buddy",
+          "time": "2024-09-20T04:54:57.591Z"
+        }
+      ]
+    },
+    {
+      "id": "e473",
+      "participants": [
+        {
+          "id": "7c2c",
+          "name": "Ali"
+        },
+        {
+          "id": "7ab0",
+          "name": "Atif"
+        }
+      ],
+      "messages": [
+        {
+          "id": 1726808665550,
+          "senderId": "7c2c",
+          "content": "Hello",
+          "time": "2024-09-20T05:04:25.550Z"
+        },
+        {
+          "id": 1726808679936,
+          "senderId": "7ab0",
+          "content": "yes",
+          "time": "2024-09-20T05:04:39.936Z"
+        }
+      ]
     }
   ],
   "groupChats": []
